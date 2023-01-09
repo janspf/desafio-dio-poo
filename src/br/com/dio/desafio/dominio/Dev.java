@@ -1,35 +1,42 @@
 package br.com.dio.desafio.dominio;
 
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class Dev {
     private String nome;
     private Set<Conteudo> conteudosInscritos = new LinkedHashSet<>();
     private Set<Conteudo> conteudosConcluidos = new LinkedHashSet<>();
 
-    public void inscreverBootcamp(Bootcamp bootcamp) {
-        this.conteudosConcluidos.addAll(bootcamp.getConteudos());
+    public void inscreverBootcamp(Bootcamp bootcamp){
+        this.conteudosInscritos.addAll(bootcamp.getConteudos());
         bootcamp.getDevsInscritos().add(this);
     }
 
     public void progredir() {
         Optional<Conteudo> conteudo = this.conteudosInscritos.stream().findFirst();
-        if(Conteudo.isPresent()) {
+        if(conteudo.isPresent()) {
             this.conteudosConcluidos.add(conteudo.get());
             this.conteudosInscritos.remove(conteudo.get());
         } else {
-            System.err.println("Você não está matriculado em nenhum conteudo!");
+            System.err.println("Você não está matriculado em nenhum conteúdo!");
         }
     }
+
     public double calcularTotalXp() {
-        return this.conteudosConcluidos
+        Iterator<Conteudo> iterator = this.conteudosConcluidos.iterator();
+        double soma = 0;
+        while(iterator.hasNext()){
+            double next = iterator.next().calcularXp();
+            soma += next;
+        }
+        return soma;
+
+        /*return this.conteudosConcluidos
                 .stream()
-                .mapToDouble(conteudo -> conteudo.calcularXp())
-                .sum();
+                .mapToDouble(Conteudo::calcularXp)
+                .sum();*/
     }
+
 
     public String getNome() {
         return nome;
@@ -66,6 +73,5 @@ public class Dev {
     @Override
     public int hashCode() {
         return Objects.hash(nome, conteudosInscritos, conteudosConcluidos);
-
     }
 }
